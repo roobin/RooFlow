@@ -80,7 +80,7 @@ const TEXT = {
   sv: {
     radarMissing: 'status/radar.json saknas (modden eller `node scripts/radar.js` skriver den)',
     radarInvalid: 'status/radar.json är inte giltig JSON',
-    radarFormat: (f) => `status/radar.json har format ${f}, väntat 1`,
+    radarFormat: (f) => `status/radar.json har format ${f}, förväntat 1`,
     radarOld: (min) => `status/radar.json är ${min} min gammal (gräns 15). Modden kör inte eller har stannat`,
     radarOk: (min) => `status/radar.json är ${min} min gammal, format 1`,
     stuck: (n, lista) => `${n} statusfil(er) säger running men är orörda i över 24 h: ${lista}`,
@@ -121,7 +121,7 @@ const TEXT = {
     cliMissing: 'ingen Claude Code CLI hittad (npm, ~/.local/bin eller PATH): agenter kan inte starta. Installera CLI:t eller sätt claudeCli i rooflow.json',
     cliGone: (p) => `rooflow.json claudeCli '${p}' finns inte`,
     cliApp: (p, kalla) => `'${p}' (${kalla}) ser ut som skrivbordsappen, inte Claude Code CLI: agenter skulle dö utan svar. Installera CLI:t eller sätt claudeCli i rooflow.json`,
-    staleLock: (lista) => `kvarglömd låsfil: ${lista}. Skrivare tar själva bort lås äldre än 60 s vid nästa skrivning`,
+    staleLock: (lista) => `kvarglömd låsfil: ${lista}. Skripten tar själva bort lås äldre än 60 s vid nästa skrivning`,
     noLock: 'ingen låsfil äldre än 60 s',
     pluginSame: (k, h) => `pluginet ${k} är installerat på källans HEAD (${h})`,
     pluginOlder: (n, h) => `är ${n === null ? 'några' : n} commit(s) äldre än HEAD ${h} i sin lokala källa`,

@@ -47,8 +47,8 @@ folders `status/`, `notes/`, `archive/`, `briefs/`. It skips every file that exi
 the overview once; the overview's own files (`radar.md`, `status/radar.json`, `status/radar-forra.json`) are listed apart as
 "by the overview". `after-release.md` is created later, the first time the `ship` skill needs it. Tell the owner what was created in
 one line. On a re-run, run it too: it only fills in what is missing.
-The band and the panel are not loaded in this session, since it started before `rooflow.json` existed: they appear in a new session
-started in the notebook folder. The end lines say so.
+When the notebook was created in this run, the band and the panel are not loaded in this session, since it started before
+`rooflow.json` existed: they appear in a new session started in the notebook folder. The end lines say so.
 
 ## 4. Quick mode (only right after the notebook was created)
 
@@ -132,7 +132,7 @@ Bash(bash <plugin>/scripts/agent-resume.sh *)
 ```
 
 Say that they apply from the next session in this folder, not in the one running now. Mention that the lines hold the plugin's
-folder as it is now: an install from a marketplace on the internet gets a new folder (with the version in it) at each update, and then
+folder as it is now: an install from a marketplace on the internet gets a new folder at each update, and then
 running `/rooflow-setup` again fixes the lines. When the plugin comes from a local marketplace (a folder on disk), the path is that
 source folder and stays the same across updates.
 

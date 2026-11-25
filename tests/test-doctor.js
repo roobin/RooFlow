@@ -53,6 +53,13 @@ ok(/^Total: \d+ OK, 0 WARNING, 0 ERROR$/m.test(r.ut), 'English by default, with 
   ok(!/no BOM in|scheduled jobs/.test(sv), 'language sv: no English check lines left');
   const okant = bryt('an unknown language falls back to English', { 'rooflow.json': JSON.stringify({ ...JSON.parse(FRISK['rooflow.json']), language: 'fr' }) }, 'OK', 'no BOM in .md files');
   ok(/^Total:/m.test(okant), 'an unknown language gives the English total');
+  // Most Swedish lines only run when their fault occurs, so a missing key would throw late: compare the key lists in the source.
+  const kalla = fs.readFileSync(skript, 'utf8');
+  const nycklar = (sprak) => {
+    const m = kalla.match(new RegExp('\\n  ' + sprak + ': \\{\\n([\\s\\S]*?)\\n  \\},'));
+    return m ? [...m[1].matchAll(/^    (\w+):/gm)].map((x) => x[1]).sort().join(',') : '';
+  };
+  ok(nycklar('en').length > 0 && nycklar('en') === nycklar('sv'), 'the en and sv tables in doctor.js have the same keys');
 }
 
 // One fault at a time against a healthy root.
