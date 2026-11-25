@@ -28,8 +28,9 @@ itself). The end lines name them.
 ## 1. Name
 
 "What should I call you? (Only used in the notebook's files. Leave empty and I say 'you'.)" Saved as `name` in `rooflow.json`.
-Never guess or propose a name from other files, the git identity or the user folder: the answer comes from the owner. When the
-question has buttons, they are "Leave empty" and a free text answer; an empty answer saves `""`.
+Never guess or propose a name from other files, the git identity or the user folder: the answer comes from the owner. Ask it as a
+plain chat question, not with the question tool: that tool needs at least two options, and a name has none to offer. An empty answer,
+or "skip", saves `""`.
 
 ## 2. Language
 
@@ -46,7 +47,8 @@ folders `status/`, `notes/`, `archive/`, `briefs/`. It skips every file that exi
 the overview once; the overview's own files (`radar.md`, `status/radar.json`, `status/radar-forra.json`) are listed apart as
 "by the overview". `after-release.md` is created later, the first time the `ship` skill needs it. Tell the owner what was created in
 one line. On a re-run, run it too: it only fills in what is missing.
-If the session was not started inside the new folder, say that the band and the panel appear when it is.
+The band and the panel are not loaded in this session, since it started before `rooflow.json` existed: they appear in a new session
+started in the notebook folder. The end lines say so.
 
 ## 4. Quick mode (only right after the notebook was created)
 
@@ -129,8 +131,10 @@ Bash(bash <plugin>/scripts/agent.sh *)
 Bash(bash <plugin>/scripts/agent-resume.sh *)
 ```
 
-Say that they apply from the next session in this folder, not in the one running now. Mention that the path changes when the plugin
-moves to a new folder after an update, and that running `/rooflow-setup` again fixes the lines.
+Say that they apply from the next session in this folder, not in the one running now. Mention that the lines hold the plugin's
+folder as it is now: an install from a marketplace on the internet gets a new folder (with the version in it) at each update, and then
+running `/rooflow-setup` again fixes the lines. When the plugin comes from a local marketplace (a folder on disk), the path is that
+source folder and stays the same across updates.
 
 ## 11. Models
 
@@ -207,5 +211,7 @@ Finish with at most eight lines:
   `rooflow.json` `projects.<slug>.folder` when the folder has another name or place (`<slug>` is the Folder column in lower case), and
   `projects.<slug>.run` when its `run.json` lies in another folder.
 - The CLI, when step 16 found and saved it.
+- When the notebook was created in this run (the session started without `rooflow.json`): "The band and the panel show up in a new
+  session started in <notebook folder>, not in this one." Say it in so many words; the owner otherwise looks for them here.
 - The first thing to try (`/morning`, then add projects to `projects.md`), and `/rooflow-doctor` as a last check: it warns about
   projects whose folder is not found.
