@@ -24,8 +24,17 @@ In Claude Code:
 /plugin install rooflow@rooflow
 ```
 
+`/plugin install` installs for your user (user scope): the plugin is on in every folder, but it does nothing outside a
+notebook (see The notebook). To have it only in one folder, install from a terminal in that folder with the local scope
+instead (it is written to that folder's `.claude/settings.local.json`):
+
+```
+claude plugin install rooflow@rooflow --scope local
+```
+
 Then open an empty folder that will be your notebook, start a session there and run `/rooflow-setup`. It asks one question
-at a time (name, language, calendar, models, backup) and creates the notebook from `templates/`; it never overwrites a file.
+at a time (name, language, where your projects are, backup, permissions ...; a quick mode keeps the defaults for the rest) and
+creates the notebook from `templates/` (`templates/sv/` for Swedish); it never overwrites a file.
 
 ## A day with RooFlow
 
@@ -146,9 +155,11 @@ folder. A skill with the same name in the notebook's own `.claude/skills` wins: 
 
 - **Personal parts are addons** that only run when `rooflow.json` turns them on: the calendar (`addons.calendar`, now `outlook`
   on Windows, in `skills/morning/calendar-outlook.md`) and the Servers tab.
-- `rooflow-setup` is the onboarding and the settings, and can be run again. It asks one thing at a time (name, language, calendar,
-  scheduled morning, backup, team mode, permissions, models, categories, the agent contract in a project) and calls `scripts/init.js`, which creates the
-  notebook from `templates/` and never overwrites a file.
+- `rooflow-setup` is the onboarding and the settings, and can be run again. It asks one thing at a time (name, language, where the
+  projects are, calendar, scheduled morning, backup, team mode, permissions, models, categories, visibility, the agent contract in a
+  project; after the notebook is created a quick mode asks only about backup and permissions) and calls `scripts/init.js`, which
+  creates the notebook from `templates/` and never overwrites a file. With `--language sv` each file comes from `templates/sv/`
+  when it is there: Swedish headings and prose, while the keys and section headings the scripts read stay English.
 - `rules/agent-contract.md` is the contract every agent gets in its brief: the status header, B-ids through
   `scripts/new-decision.cjs`, the final `REPORT`.
 
