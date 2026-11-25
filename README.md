@@ -26,7 +26,8 @@ In Claude Code:
 
 `/plugin install` installs for your user (user scope): the plugin is on in every folder, but it does nothing outside a
 notebook (see The notebook). To have it only in one folder, install from a terminal in that folder with the local scope
-instead (it is written to that folder's `.claude/settings.local.json`):
+instead (it is written to that folder's `.claude/settings.local.json`; on Windows `claude` on the PATH may be the desktop app,
+so use the Claude Code CLI):
 
 ```
 claude plugin install rooflow@rooflow --scope local

@@ -8,7 +8,8 @@ description: Onboarding and settings for a RooFlow notebook. Creates the noteboo
 Ask ONE thing at a time and wait for the answer before the next. Keep every question to one or two lines, with the current value
 (when there is one) and the default. Answer in the owner's language once it is known; before that, in the language the owner wrote in.
 Nothing below is done without the owner's yes where it says so. This skill never overwrites a file that exists: it only creates
-missing files, and in `rooflow.json` it only changes the keys the owner has just answered.
+missing files, and in `rooflow.json` it only changes the keys the owner has just answered (and `claudeCli` when step 16 finds
+the CLI by itself).
 
 Keep a list as you go of the settings that were kept at their default without a question (quick mode, skipped steps, found by
 itself). The end lines name them.
@@ -49,8 +50,8 @@ If the session was not started inside the new folder, say that the band and the 
 
 ## 4. Quick mode (only right after the notebook was created)
 
-"Keep the defaults for the rest? Then I only ask about backup and permissions." On **yes**, run only steps 8 and 10 (and step 16
-when the CLI is not found by itself), and keep every other setting as the template has it; the end lines list them. On **no**, go on
+"Keep the defaults for the rest? Then I only ask about backup and permissions." On **yes**, run only steps 8, 10 and 16 (step 16
+asks nothing when the CLI is found by itself), and keep every other setting as the template has it; the end lines list them. On **no**, go on
 with step 5. On a re-run, skip this step: the owner is there to change things.
 
 ## 5. Where the projects are
@@ -139,8 +140,8 @@ larger builds `sonnet`. Keep them, or name others (any alias or model id, for ex
 
 ## 12. Categories
 
-Ask only when `projects.md` has at least one project row. With no projects there is nothing to sort yet: keep the template's set and
-say in the end lines that categories exist and are changed with `/rooflow-setup`.
+On the first run, ask only when `projects.md` has at least one project row. With no projects there is nothing to sort yet: keep the
+template's set and say in the end lines that categories exist and are changed with `/rooflow-setup`. On a re-run, always ask.
 
 The Category column in `projects.md` holds the owner's own names. `rooflow.json` `categories` ties each name to what RooFlow
 should do with it. The keys are fixed English words (`work`, `private`, `home`, `archive`, or others the owner adds); `label` is the
