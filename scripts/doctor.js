@@ -64,6 +64,7 @@ const TEXT = {
     noCategories: 'rooflow.json has no "categories": the default applies (archive is hidden). /rooflow-setup proposes a set',
     unknownCategories: (lista) => `projects.md has categories that are not in rooflow.json categories: ${lista}. Add them (key or label) or rename them in projects.md`,
     categoriesOk: (n) => `every category in projects.md is in rooflow.json categories (${n} categories)`,
+    noProjects: (n, etiketter) => `no projects in projects.md yet; ${n} categories defined: ${etiketter}`,
     cliMissing: 'no Claude Code CLI found (npm, ~/.local/bin or PATH): agents cannot start. Install the CLI or set claudeCli in rooflow.json',
     cliGone: (p) => `rooflow.json claudeCli '${p}' does not exist`,
     cliApp: (p, kalla) => `'${p}' (${kalla}) looks like the desktop app, not the Claude Code CLI: agents would die without an answer. Install the CLI or set claudeCli in rooflow.json`,
@@ -116,6 +117,7 @@ const TEXT = {
     noCategories: 'rooflow.json har inga "categories": standarden gäller (archive är dold). /rooflow-setup föreslår en uppsättning',
     unknownCategories: (lista) => `projects.md har kategorier som saknas i rooflow.json categories: ${lista}. Lägg till dem (nyckel eller etikett) eller byt namn i projects.md`,
     categoriesOk: (n) => `alla kategorier i projects.md finns i rooflow.json categories (${n} kategorier)`,
+    noProjects: (n, etiketter) => `inga projekt i projects.md än; ${n} kategorier definierade: ${etiketter}`,
     cliMissing: 'ingen Claude Code CLI hittad (npm, ~/.local/bin eller PATH): agenter kan inte starta. Installera CLI:t eller sätt claudeCli i rooflow.json',
     cliGone: (p) => `rooflow.json claudeCli '${p}' finns inte`,
     cliApp: (p, kalla) => `'${p}' (${kalla}) ser ut som skrivbordsappen, inte Claude Code CLI: agenter skulle dö utan svar. Installera CLI:t eller sätt claudeCli i rooflow.json`,
@@ -359,6 +361,10 @@ function kategorier(text, config, rader) {
   const privataDelade = rader.filter((p) => p.kategori.private && delade.has(p.slug)).map((p) => p.slug);
   if (privataDelade.length) varna(T.privateShared(privataDelade.join(', ')));
   if (!config.categoriesSet) return ok(T.noCategories);
+  if (!rader.length) {
+    const etiketter = Object.values(config.categories).map((k) => k.label);
+    return ok(T.noProjects(etiketter.length, etiketter.join(', ')));
+  }
   const okanda = [...new Set(rader.filter((p) => !p.kategori.blank && !p.kategori.known).map((p) => p.kategori.label))];
   if (okanda.length) varna(T.unknownCategories(okanda.join(', ')));
   else ok(T.categoriesOk(Object.keys(config.categories).length));

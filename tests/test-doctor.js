@@ -119,6 +119,15 @@ bryt('invalid rooflow.json', { 'rooflow.json': '{ nope' }, 'ERROR', 'rooflow.jso
     'rooflow.json': medKat({}),
   }, 'WARNING', 'not in rooflow.json categories: Kontor');
   ok(!/categories: .*(–|jobb)/.test(okand.split('\n').find((r) => r.includes('not in rooflow.json categories')) || ''), 'a dash and a known label are not unknown');
+  const tom = bryt('an empty projects.md says there are no projects yet and names the categories', {
+    'projects.md': tabell(),
+    'rooflow.json': medKat({}),
+  }, 'OK', 'no projects in projects.md yet; 3 categories defined: jobb, hemma, arkiv');
+  ok(!/every category in projects\.md/.test(tom), 'an empty projects.md does not claim every category is known');
+  bryt('an empty projects.md in Swedish', {
+    'projects.md': tabell(),
+    'rooflow.json': medKat({ language: 'sv' }),
+  }, 'OK', 'inga projekt i projects.md än; 3 kategorier definierade: jobb, hemma, arkiv');
   bryt('without categories in rooflow.json the category check says the default applies', {
     'projects.md': tabell(['Odd-One', 'Kontor', 'yes', 'no', 'parked', '']),
   }, 'OK', 'the default applies');
