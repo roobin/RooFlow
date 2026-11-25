@@ -28,7 +28,6 @@ export const sv = {
   panelOpen: 'RooFlow-panelen är öppen.',
   panelNotDrawn: (reason: string) => `RooFlow-panelen kunde inte ritas: ${reason}`,
   rooflowCommandDescription: (tabs: string) => `Öppna RooFlow-panelen: ${tabs}. Att titta kostar inga tokens.`,
-  decided: (id: string) => `${id} avgjort`,
   decidedContinue: (id: string, task: string) => `${id} är avgjort och sparat. Skicka prompten om ${task} ska fortsätta nu, annars töm rutan.`,
   decidedAutoContinue: (id: string, task: string, s: number) => `${id} är avgjort. ${task} fortsätter om ${s} s; Ångra i panelen stoppar det.`,
   continuingIn: (task: string, s: number) => `Fortsätter ${task} om ${s} s`,
@@ -37,6 +36,13 @@ export const sv = {
   continueAgent: (id: string, task: string) => `Fortsätt agenten ${task} (${id})`,
   continueHeld: (id: string, task: string) => `${id} är avgjort. ${task} fortsätter inte förrän du trycker Fortsätt agenten.`,
   continueSent: (task: string) => `${task} fortsätter: prompten är skickad.`,
+  decidedSend: (id: string, s: number) => `${id} är avgjort. Svaret skickas till sessionen om ${s} s; Ångra i panelen stoppar det.`,
+  decidedFill: (id: string) => `${id} är avgjort och sparat. Skicka prompten om sessionen ska agera på det nu, annars töm rutan.`,
+  decidedHeld: (id: string) => `${id} är avgjort. Svaret skickas inte till sessionen förrän du trycker Skicka.`,
+  sendingIn: (id: string, s: number) => `Skickar ${id} till sessionen om ${s} s`,
+  undoSendLabel: (id: string) => `Ångra: skicka inte ${id} till sessionen nu`,
+  sendDecision: (id: string) => `Skicka ${id} till sessionen`,
+  decisionSent: (id: string) => `${id} är skickat till sessionen.`,
   answerNotSent: (id: string, err: string) => `Svaret på ${id} gick inte iväg: ${err}`,
   notSent: (key: string, err: string) => `${key} gick inte iväg: ${err}`,
   commandInPrompt: (name: string) => `${name} ligger i prompten: tryck Enter för att skicka det (kostar en tur).`,
@@ -230,6 +236,8 @@ export const sv = {
 
   // Prompts the panel fills in
   continuePrompt: (id: string, answer: string, task: string) => `Fortsätt ${task}: ${id} är avgjort med svaret "${answer}".`,
+  // A decision without an agent: what the owner would have typed in the chat, "B14 a" or "B14: free text".
+  decisionPrompt: (id: string, answer: string) => (/^[a-h]$/i.test(answer) ? `${id} ${answer}` : `${id}: ${answer}`),
 }
 
 export const en: typeof sv = {
@@ -256,7 +264,6 @@ export const en: typeof sv = {
   panelOpen: 'The RooFlow panel is open.',
   panelNotDrawn: (reason) => `The RooFlow panel could not be drawn: ${reason}`,
   rooflowCommandDescription: (tabs) => `Open the RooFlow panel: ${tabs}. Looking costs no tokens.`,
-  decided: (id) => `${id} decided`,
   decidedContinue: (id, task) => `${id} is decided and saved. Send the prompt if ${task} should continue now, otherwise clear the box.`,
   decidedAutoContinue: (id, task, s) => `${id} is decided. ${task} continues in ${s} s; Undo in the panel stops it.`,
   continuingIn: (task, s) => `Continuing ${task} in ${s} s`,
@@ -265,6 +272,13 @@ export const en: typeof sv = {
   continueAgent: (id, task) => `Continue the agent ${task} (${id})`,
   continueHeld: (id, task) => `${id} is decided. ${task} does not continue until you press Continue the agent.`,
   continueSent: (task) => `${task} continues: the prompt is sent.`,
+  decidedSend: (id, s) => `${id} is decided. The answer goes to the session in ${s} s; Undo in the panel stops it.`,
+  decidedFill: (id) => `${id} is decided and saved. Send the prompt if the session should act on it now, otherwise clear the box.`,
+  decidedHeld: (id) => `${id} is decided. The answer is not sent to the session until you press Send.`,
+  sendingIn: (id, s) => `Sending ${id} to the session in ${s} s`,
+  undoSendLabel: (id) => `Undo: do not send ${id} to the session now`,
+  sendDecision: (id) => `Send ${id} to the session`,
+  decisionSent: (id) => `${id} is sent to the session.`,
   answerNotSent: (id, err) => `The answer to ${id} was not sent: ${err}`,
   notSent: (key, err) => `${key} was not sent: ${err}`,
   commandInPrompt: (name) => `${name} is in the prompt: press Enter to send it (costs one turn).`,
@@ -446,6 +460,7 @@ export const en: typeof sv = {
   helpEmpty: 'No pages in the docs/ folder of the plugin.',
 
   continuePrompt: (id, answer, task) => `Continue ${task}: ${id} is decided with the answer "${answer}".`,
+  decisionPrompt: (id, answer) => (/^[a-h]$/i.test(answer) ? `${id} ${answer}` : `${id}: ${answer}`),
 }
 
 export type Strings = typeof sv

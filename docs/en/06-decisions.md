@@ -18,6 +18,12 @@ The agent continues by itself. The panel first shows "Continuing <task> in 4 s �
 - A free answer that starts with "wait", "not now", "stop" or "no" ("vänta", "inte nu", "stopp", "nej") sends nothing by itself;
   the button waits instead.
 
+## When no agent is waiting
+
+The session gets the answer the same way, as `B14 a` (or `B14: free text`), so it acts on it. The panel shows "Sending B14 to
+the session in 4 s · Undo"; after Undo or a holding answer the button is "Send B14 to the session". The decision is already in
+the archive, so the session does not decide it again.
+
 Setting in `rooflow.json`:
 
 ```json

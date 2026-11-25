@@ -402,9 +402,9 @@ async function vaxlaPanel($: EngineInterface, inst: Inst): Promise<void> {
 }
 
 // A press on an answer button runs scripts/decide.js (no turn): the decision is archived and the agent's status file gets a line.
-// If the decision belongs to an agent the prompt is filled in with "B14 a: continue <task>"; the owner sends it when ready and
-// the session then continues the agent. Otherwise a toast. The guard is set before the script: a second press while it runs,
-// in the band or the panel, does nothing.
+// Then the session gets the answer (efterBeslut): "Continue <task>: B14 is decided ..." when the decision belongs to an agent,
+// otherwise "B14 a" as the owner would have typed it, so the session acts on it; the decisions skill knows it is already
+// archived. The guard is set before the script: a second press while it runs, in the band or the panel, does nothing.
 async function svara($: EngineInterface, inst: Inst, b: RadarBeslut, svar: string): Promise<void> {
   const S = inst.S
   if (skickas.has(b.id)) return
@@ -424,10 +424,8 @@ async function svara($: EngineInterface, inst: Inst, b: RadarBeslut, svar: strin
       if ('fel' in ut) {
         await ta_bort()
         $.ui.toast(`${b.id}: ${ut.fel.slice(0, 100)}`)
-      } else if (ut.task) {
-        await efterAgentBeslut($, inst, b.id, ut.task, ut.svar)
       } else {
-        $.ui.toast(S.decided(b.id))
+        await efterBeslut($, inst, b.id, ut.task, ut.svar)
       }
     } catch (err) {
       await ta_bort()
@@ -439,33 +437,34 @@ async function svara($: EngineInterface, inst: Inst, b: RadarBeslut, svar: strin
   await koraSkriptet($, inst)
 }
 
-// An agent's decision is decided. autoContinue (the default): the continue prompt is sent after undoSeconds (rooflow.json, default 4), unless Undo is
-// pressed in the panel or the answer holds the agent back ("wait", "not now" ...); then a "Continue the agent" button waits.
+// A decision is decided. With an agent (task) the prompt continues it; without one (task "") the prompt is "B14 a" for the
+// session itself. autoContinue (the default): the prompt is sent after undoSeconds (rooflow.json, default 4), unless Undo is
+// pressed in the panel or the answer holds back ("wait", "not now" ...); then a "Continue the agent" or "Send" button waits.
 // autoContinue false: the prompt is filled in and the owner sends it, as before.
-async function efterAgentBeslut($: EngineInterface, inst: Inst, id: string, task: string, svar: string): Promise<void> {
+async function efterBeslut($: EngineInterface, inst: Inst, id: string, task: string, svar: string): Promise<void> {
   const S = inst.S
-  const text = S.continuePrompt(id, svar, task)
+  const text = task ? S.continuePrompt(id, svar, task) : S.decisionPrompt(id, svar)
   if (!inst.autoContinue) {
     await $.prompt.fill({ text, mode: 'replace' })
-    $.ui.toast(S.decidedContinue(id, task))
+    $.ui.toast(task ? S.decidedContinue(id, task) : S.decidedFill(id))
     return
   }
   if (arStoppSvar(svar)) {
     await update($, fortsattVantar, v => [...v.filter(x => x.id !== id), { id, task, text }])
-    $.ui.toast(S.continueHeld(id, task))
+    $.ui.toast(task ? S.continueHeld(id, task) : S.decidedHeld(id))
     return
   }
   // Several decisions can be in their undo window at once: one entry and one timer per decision.
   const ms = await $.clock.now()
   await update($, fortsatt, f => [...f.filter(x => x.id !== id), { id, task, text, ms }])
-  $.ui.toast(S.decidedAutoContinue(id, task, inst.undoSeconds))
+  $.ui.toast(task ? S.decidedAutoContinue(id, task, inst.undoSeconds) : S.decidedSend(id, inst.undoSeconds))
   $.clock.after(inst.undoSeconds * 1000, async () => {
     let skicka = false
     await update($, fortsatt, f => {
       skicka = f.some(x => x.id === id && x.ms === ms)
       return f.filter(x => !(x.id === id && x.ms === ms))
     })
-    if (skicka) await skickaFortsattning($, inst, task, text)
+    if (skicka) await skickaFortsattning($, inst, id, task, text)
   })
 }
 
@@ -479,14 +478,15 @@ async function fortsattEfterOmladdning($: EngineInterface): Promise<void> {
   if (kvar.length) await update($, fortsattVantar, v => [...v.filter(x => !kvar.some(k => k.id === x.id)), ...kvar])
 }
 
-async function skickaFortsattning($: EngineInterface, inst: Inst, task: string, text: string): Promise<void> {
+// task "" is a decision without an agent: the toasts name the decision instead.
+async function skickaFortsattning($: EngineInterface, inst: Inst, id: string, task: string, text: string): Promise<void> {
   try {
     await $.prompt.submit({ text, asUser: true })
-    $.ui.toast(inst.S.continueSent(task))
+    $.ui.toast(task ? inst.S.continueSent(task) : inst.S.decisionSent(id))
   } catch (err) {
     // Not sent: the owner can still send it from the prompt.
     await $.prompt.fill({ text, mode: 'replace' })
-    $.ui.toast(inst.S.notSent(task, String(err).slice(0, 80)))
+    $.ui.toast(inst.S.notSent(task || id, String(err).slice(0, 80)))
   }
 }
 
@@ -509,7 +509,7 @@ async function fortsattNu($: EngineInterface, inst: Inst, id: string): Promise<v
     return v.filter(x => x.id !== id)
   })
   const x = vald as { id: string; task: string; text: string } | undefined
-  if (x) await skickaFortsattning($, inst, x.task, x.text)
+  if (x) await skickaFortsattning($, inst, x.id, x.task, x.text)
 }
 
 // Buttons that cost a turn (the commands, Sort): blocked for two minutes after a press, so that an impatient
@@ -893,15 +893,15 @@ async function beslutFlik($: EngineInterface, inst: Inst, d: RadarData, sk: Reco
     <Box flexDirection="column" gap={1}>
       {pagar.map((x, i) => (
         <Box key={`fortsatt-${x.id}`} flexDirection="row" gap={1} flexWrap="wrap">
-          <Text color="warning">{S.continuingIn(x.task, inst.undoSeconds)}</Text>
-          <Button key={`fortsatt-angra-${x.id}`} autoFocus={i === 0 ? true : undefined} label={S.undoContinueLabel(x.task)} onPress={() => void angraFortsattning($, x.id)}>
+          <Text color="warning">{x.task ? S.continuingIn(x.task, inst.undoSeconds) : S.sendingIn(x.id, inst.undoSeconds)}</Text>
+          <Button key={`fortsatt-angra-${x.id}`} autoFocus={i === 0 ? true : undefined} label={x.task ? S.undoContinueLabel(x.task) : S.undoSendLabel(x.id)} onPress={() => void angraFortsattning($, x.id)}>
             {S.undoContinue}
           </Button>
         </Box>
       ))}
       {vantande.map(x => (
         <Box key={`fortsatt-v-${x.id}`} flexDirection="row" gap={1}>
-          <Button key={`fortsatt-nu-${x.id}`} variant="primary" label={S.continueAgent(x.id, x.task)} onPress={() => void fortsattNu($, inst, x.id)} />
+          <Button key={`fortsatt-nu-${x.id}`} variant="primary" label={x.task ? S.continueAgent(x.id, x.task) : S.sendDecision(x.id)} onPress={() => void fortsattNu($, inst, x.id)} />
         </Box>
       ))}
       {d.beslut.length === 0 ? <Text>{S.noDecisions}</Text> : null}

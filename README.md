@@ -103,8 +103,8 @@ The notebook is a folder with a `rooflow.json` in it. Everything the plugin does
 band and the panel, and how file keys are shown), `claudeCli`, `trustAgentFolders`, `projectsDir`,
 `projects.<slug>.{restart,url,folder,run}`, `models`, `visibility`, `decisions`, `categories`, and `addons`.
 
-`"decisions": { "autoContinue": true, "undoSeconds": 4 }`: when an agent's decision is answered in the panel, the continue
-prompt is sent by itself after the undo window; `false` only fills in the prompt.
+`"decisions": { "autoContinue": true, "undoSeconds": 4 }`: when a decision is answered in the panel, the continue prompt
+(or `B14 a` when no agent waits) is sent by itself after the undo window; `false` only fills in the prompt.
 
 `"visibility": { "routine": "hidden", "agents": "hidden", "build": "hidden" }` says where work runs, per kind: `hidden` (a
 subagent, or `scripts/agent.sh` for a project agent) or `tree` (a session of its own in the app's session tree, in the sidebar

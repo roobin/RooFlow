@@ -17,6 +17,12 @@ Agenten fortsätter av sig själv. Panelen visar först "Fortsätter <uppdrag> o
 - Ett fritt svar som börjar med "vänta", "inte nu", "stopp" eller "nej" ("wait", "not now", "stop", "no") skickar inget av
   sig självt; knappen väntar i stället.
 
+## När ingen agent väntar
+
+Sessionen får svaret på samma sätt, som `B14 a` (eller `B14: fri text`), och agerar på det. Panelen visar "Skickar B14 till
+sessionen om 4 s · Ångra"; efter Ångra eller ett väntande svar heter knappen "Skicka B14 till sessionen". Beslutet ligger redan
+i arkivet, så sessionen avgör det inte igen.
+
 Inställning i `rooflow.json`:
 
 ```json

@@ -358,6 +358,8 @@ describe('Needs, beslut utan tur och svenska nycklar', () => {
     expect('fel' in tolkaDecideSvar('skräp', sv)).toBe(true)
     expect(sv.continuePrompt('B3', 'a', 'gamma-cookies')).toBe('Fortsätt gamma-cookies: B3 är avgjort med svaret "a".')
     expect(en.continuePrompt('B3', 'a', 'gamma-cookies')).toBe('Continue gamma-cookies: B3 is decided with the answer "a".')
+    expect(sv.decisionPrompt('B9', 'A')).toBe('B9 A')
+    expect(en.decisionPrompt('B9', 'wait until Friday')).toBe('B9: wait until Friday')
   })
 
   test('oversattNycklar: nycklarna på svenska, värden och löptext orörda, kodstaket och "en" lämnas', () => {

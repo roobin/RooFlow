@@ -170,9 +170,9 @@ declare module 'claude-code' {
       // The notebook: the root (empty = none, the mod does nothing), the language and addons from rooflow.json, and the operating system.
       // autoContinue and undoSeconds: rooflow.json decisions.autoContinue (default true) and decisions.undoSeconds (default 4).
       miljo: { rot: string; language: string; servers: boolean; platform: string; autoContinue: boolean; undoSeconds: number }
-      // Decided agent decisions whose continue prompt is sent when the undo window ends (ms: when it was decided).
+      // Decided decisions whose prompt is sent when the undo window ends (ms: when it was decided). task "": no agent, the prompt is "B14 a".
       fortsatt: { id: string; task: string; text: string; ms: number }[]
-      // Continue prompts that were not sent (Undo, a holding answer, or autoContinue off): a "Continue the agent" button each.
+      // Continue prompts that were not sent (Undo, a holding answer, or autoContinue off): a "Continue the agent" (or "Send" without task) button each.
       fortsattVantar: { id: string; task: string; text: string }[]
       // Headings that fold (Servers per project, Agents per group): key -> open. Kept in $.store between sessions.
       oppet: Record<string, boolean>

@@ -1184,8 +1184,43 @@ test('äldre radar.json utan vantarPa: inga grupper och inget "väntar" i bandet
   await ui.unmount()
 })
 
-test('svar på beslut utan agent: bara en toast, ingen prompt; ett fel från skriptet blir en toast och knapparna kommer tillbaka', async ($, on) => {
-  const { filer, korda, fyllda, toasts } = await starta(on, $)
+test('beslut utan agent: Ångra ger knappen Skicka, ett väntande fritt svar skickas inte, autoContinue false fyller i', async ($, on) => {
+  const { filer, prompts, fyllda, klocka } = await starta(on, $)
+  const b9 = { ...B3, id: 'B9', text: '- Id: B9' }
+  const b10 = { ...B3, id: 'B10', text: '- Id: B10' }
+  filer['status/radar.json'] = JSON.stringify({ ...RADAR_JSON, beslut: [b9, b10] })
+  await $.command.run({ command: 'radar', args: '' })
+  const pane = await $.ui.mount({ ...PANE, plugin: PLUGIN })
+  await pane.press({ key: 'pb-rad-0' })
+  await pane.press({ key: 'pb-0-c' })
+  await pane.press({ key: 'fortsatt-angra-B9' })
+  await klocka.advance(30_000)
+  expect(prompts.length).toBe(0)
+  await pane.press({ key: 'fortsatt-nu-B9' })
+  expect(prompts).toEqual(['B9 c'])
+  await pane.press({ key: 'pb-rad-1' })
+  await pane.input({ key: 'pb-1-fritt-in', text: 'vänta till fredag' })
+  await klocka.advance(30_000)
+  expect(prompts).toEqual(['B9 c'])
+  expect(await pane.find({ key: 'fortsatt-nu-B10', label: 'Skicka B10 till sessionen' })).toBeDefined()
+  await pane.press({ key: 'fortsatt-nu-B10' })
+  expect(prompts).toEqual(['B9 c', 'B10: vänta till fredag'])
+  await pane.unmount()
+  filer['rooflow.json'] = JSON.stringify({ format: 1, language: 'sv', addons: { servers: true }, decisions: { autoContinue: false } })
+  const b11 = { ...B3, id: 'B11', text: '- Id: B11' }
+  filer['status/radar.json'] = JSON.stringify({ ...RADAR_JSON, beslut: [b11] })
+  await $.command.run({ command: 'radar', args: '' })
+  const ui = await $.ui.mount({ ...PANE, plugin: PLUGIN })
+  await ui.press({ key: 'pb-rad-0' })
+  await ui.press({ key: 'pb-0-a' })
+  await klocka.advance(30_000)
+  expect(fyllda).toContain('B11 a')
+  expect(prompts.length).toBe(2)
+  await ui.unmount()
+})
+
+test('svar på beslut utan agent: "B9 a" skickas till sessionen efter ångerfönstret; ett fel från skriptet blir en toast och knapparna kommer tillbaka', async ($, on) => {
+  const { filer, korda, fyllda, toasts, prompts, klocka } = await starta(on, $)
   const b9 = { ...B3, id: 'B9', text: '- Id: B9' }
   const b13 = { ...B3, id: 'B13', text: '- Id: B13', alternativ: [{ bokstav: 'a', text: 'ja', forslag: false }] }
   filer['status/radar.json'] = JSON.stringify({ ...RADAR_JSON, beslut: [b9, b13] })
@@ -1195,7 +1230,13 @@ test('svar på beslut utan agent: bara en toast, ingen prompt; ett fel från skr
   await ui.press({ key: 'pb-0-a' })
   expect(korda.some(a => a.join(' ') === 'node scripts/decide.js B9 a')).toBe(true)
   expect(fyllda.some(t => t.startsWith('B9'))).toBe(false)
-  expect(toasts).toContain('B9 avgjort')
+  expect(toasts).toContain('B9 är avgjort. Svaret skickas till sessionen om 4 s; Ångra i panelen stoppar det.')
+  expect(await ui.find({ type: 'Text', text: 'Skickar B9 till sessionen om 4 s' })).toBeDefined()
+  expect(await ui.find({ key: 'fortsatt-angra-B9', label: 'Ångra: skicka inte B9 till sessionen nu' })).toBeDefined()
+  expect(prompts.length).toBe(0)
+  await klocka.advance(5_000)
+  expect(prompts).toEqual(['B9 a'])
+  expect(toasts).toContain('B9 är skickat till sessionen.')
   await ui.press({ key: 'pb-rad-1' })
   await ui.press({ key: 'pb-1-a' })
   expect(toasts.some(t => t.startsWith('B13: inte öppen'))).toBe(true)

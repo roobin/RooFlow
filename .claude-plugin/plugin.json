@@ -1,6 +1,6 @@
 {
   "name": "rooflow",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "RooFlow: a calm overview of projects, agents, promises and decisions, kept as plain files in a notebook folder. Includes the Radar band and panel.",
   "author": {
     "name": "RooFlow contributors"
