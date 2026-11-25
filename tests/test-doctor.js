@@ -160,6 +160,30 @@ const fore = execFileSync('git', ['-C', rot, 'status', '--porcelain'], { encodin
 doctor();
 ok(execFileSync('git', ['-C', rot, 'status', '--porcelain'], { encoding: 'utf8' }) === fore, 'doctor changes no files');
 
+// A notebook that is not a git repo. tests/_tmp lies inside the framework's own repo, so GIT_CEILING_DIRECTORIES stops git
+// from finding it; otherwise ls-files would succeed and the no-repo branch would never run.
+{
+  const utanGit = path.join(__dirname, '_tmp', 'doctor-nogit');
+  const nb = path.join(utanGit, 'nb');
+  fs.rmSync(utanGit, { recursive: true, force: true });
+  fs.mkdirSync(path.join(nb, 'status'), { recursive: true });
+  fs.writeFileSync(path.join(nb, 'status', 'radar.json'), JSON.stringify({ format: 1 }));
+  fs.writeFileSync(path.join(nb, 'decisions.md'), FRISK['decisions.md']);
+  const kor = (backup) => {
+    fs.writeFileSync(path.join(nb, 'rooflow.json'), JSON.stringify({ format: 1, claudeCli: 'tools/claude', backup: { type: backup, target: '', when: '' } }));
+    fs.mkdirSync(path.join(nb, 'tools'), { recursive: true });
+    fs.writeFileSync(path.join(nb, 'tools', 'claude'), 'x');
+    return spawnSync('node', [skript], { encoding: 'utf8', env: { ...process.env, ROOFLOW_ROOT: nb, ROOFLOW_PLUGINS_DIR: pluginsDir, GIT_CEILING_DIRECTORIES: utanGit.replace(/\\/g, '/') } });
+  };
+  let u = kor('none');
+  ok(u.stderr === '', 'no repo: git\'s own error never reaches stderr');
+  ok(rad(u.stdout, 'OK', 'not a git repo (backup none') && !/^WARNING/m.test(u.stdout), 'no repo and backup none: OK, no warning');
+  ok(rad(kor('folder').stdout, 'OK', 'backup folder'), 'no repo and backup folder: OK');
+  ok(rad(kor('git').stdout, 'WARNING', 'backup git, but the notebook is not a git repo'), 'no repo but backup git: a warning');
+  ok(rad(kor('').stdout, 'WARNING', 'not a git repo'), 'no repo and backup not chosen yet: a warning');
+  fs.rmSync(utanGit, { recursive: true, force: true });
+}
+
 fs.rmSync(rot, { recursive: true, force: true });
 console.log(fel ? `${fel} FAILED` : 'All tests OK');
 process.exit(fel ? 1 : 0);

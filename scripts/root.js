@@ -31,6 +31,8 @@ const DEFAULTS = {
   visibility: { routine: 'hidden', agents: 'hidden', build: 'hidden' },
   // Project categories (scripts/categories.js). Without the key in rooflow.json the default for the language applies.
   categories: null,
+  // Only the type is read here (doctor): git, folder, none or '' when setup has not asked yet.
+  backup: { type: '' },
   team: { enabled: false, sharedRepos: [] },
   projects: {},
 };
@@ -91,6 +93,7 @@ function loadConfig(root) {
     },
     categories: null,
     categoriesSet: o.categories !== undefined,
+    backup: { type: str(o.backup?.type, DEFAULTS.backup.type) },
     team: {
       enabled: o.team?.enabled === true,
       sharedRepos: Array.isArray(o.team?.sharedRepos) ? o.team.sharedRepos.filter((s) => typeof s === 'string') : [],

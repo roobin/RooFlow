@@ -183,8 +183,12 @@ function ser_hemlig_ut(v) {
 function hemligheter() {
   let spårade;
   try {
-    spårade = execFileSync('git', ['-C', ROT, 'ls-files', '-z'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }).split('\0').filter(Boolean);
+    spårade = execFileSync('git', ['-C', ROT, 'ls-files', '-z'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'ignore'] }).split('\0').filter(Boolean);
   } catch {
+    // Backup none or folder means setup asked about local history and the owner said no: no repo is a choice, not a fault.
+    const backup = loadConfig(ROT).config.backup.type;
+    if (backup === 'none' || backup === 'folder') return ok(`not a git repo (backup ${backup}, no local history chosen): no tracked files to check for passwords`);
+    if (backup === 'git') return varna('rooflow.json says backup git, but the notebook is not a git repo: nothing is backed up. Run /rooflow-setup again');
     return varna('not a git repo, cannot check tracked files for passwords');
   }
   const kand = spårade.filter((f) => /^status\/logg\//.test(f) || f.endsWith('.jsonl') || f === 'rooflow.json');
