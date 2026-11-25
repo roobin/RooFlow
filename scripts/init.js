@@ -5,13 +5,16 @@
 //
 //   --root       the notebook folder (default: the current directory). Created if it does not exist.
 //   --name       the owner's name, written to rooflow.json only when that file is created
-//   --language   en (default) or sv, written to rooflow.json only when that file is created
+//   --language   en (default) or sv, written to rooflow.json only when that file is created. With sv each file is taken from
+//                templates/sv/ when it is there (Swedish headings and prose; the keys the scripts read stay English),
+//                otherwise from templates/.
 //   --no-radar   do not run scripts/radar.js afterwards (it writes status/radar.json, which scripts/doctor.js wants)
 //
 // Files made: rooflow.json, decisions.md, promises.md, inbox.md, today.md, handover.md, projects.md, commands.md, CLAUDE.md,
 // status/_template.md and the folders status/, notes/, archive/, briefs/. after-release.md is not made here: the ship skill
 // creates it when something is first added to it. {{DATE}} in a template becomes today's date.
-// The last stdout line is JSON: {"ok":true,"root":"...","created":[...],"kept":[...]} or {"fel":"..."} (and exit 1).
+// The overview run writes radar.md, status/radar.json and status/radar-forra.json; those it made are listed as "overview".
+// The last stdout line is JSON: {"ok":true,"root":"...","created":[...],"kept":[...],"overview":[...]} or {"fel":"..."} (and exit 1).
 'use strict';
 
 const fs = require('fs');
@@ -26,6 +29,7 @@ const FILES = [
   'status/_template.md',
 ];
 const FOLDERS = ['status', 'notes', 'archive', 'briefs'];
+const OVERVIEW_FILES = ['radar.md', 'status/radar.json', 'status/radar-forra.json'];
 // Names an older (Swedish) notebook may already use for the same file. A template is not created when one of them exists,
 // so that two files never answer for the same thing. Files that format.js knows (beslut.md ...) are added below.
 const OLD_NAMES = {
@@ -45,6 +49,15 @@ function arg(name, standard) {
 function fail(text) {
   console.log(JSON.stringify({ fel: text }));
   process.exit(1);
+}
+
+// The template for a file in the owner's language: templates/<language>/<rel> if it exists, otherwise templates/<rel>.
+function templateFor(rel, language) {
+  if (language !== 'en') {
+    const own = path.join(TEMPLATES, language, rel);
+    if (fs.existsSync(own)) return own;
+  }
+  return path.join(TEMPLATES, rel);
 }
 
 function today() {
@@ -68,7 +81,7 @@ function main() {
     if (fs.existsSync(target)) { kept.push(rel); continue; }
     const old = (OLD_NAMES[rel] || []).find((n) => fs.existsSync(path.join(root, n)));
     if (old) { kept.push(rel + ' (' + old + ' exists)'); continue; }
-    let text = fs.readFileSync(path.join(TEMPLATES, rel), 'utf8').replace(/^﻿/, '');
+    let text = fs.readFileSync(templateFor(rel, language), 'utf8').replace(/^﻿/, '');
     if (rel === 'rooflow.json') {
       const o = JSON.parse(text);
       o.name = name;
@@ -92,16 +105,20 @@ function main() {
     fs.mkdirSync(path.join(root, f), { recursive: true });
   }
 
+  const overview = [];
   if (!process.argv.includes('--no-radar')) {
+    const before = new Set(OVERVIEW_FILES.filter((rel) => fs.existsSync(path.join(root, rel))));
     const r = spawnSync(process.execPath, [path.join(__dirname, 'radar.js'), '--quiet'], {
       cwd: root, env: { ...process.env, ROOFLOW_ROOT: root }, encoding: 'utf8',
     });
     if (r.status !== 0) console.error('Note: scripts/radar.js did not run cleanly: ' + (r.stderr || '').trim());
+    for (const rel of OVERVIEW_FILES) if (!before.has(rel) && fs.existsSync(path.join(root, rel))) overview.push(rel);
   }
 
   for (const rel of created) console.log('created ' + rel);
   for (const rel of kept) console.log('kept    ' + rel);
-  console.log(JSON.stringify({ ok: true, root, created, kept }));
+  for (const rel of overview) console.log('created ' + rel + ' (by the overview)');
+  console.log(JSON.stringify({ ok: true, root, created, kept, overview }));
 }
 
 main();

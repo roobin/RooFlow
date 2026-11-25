@@ -34,8 +34,8 @@ Start none without a yes. Check off the line in `after-release.md` (`[x]`) when 
 
 The owner says "add it to the release document/after-release: ...", or an agent report says something is to be done after release:
 
-1. If `after-release.md` is missing in the notebook: create it from `${CLAUDE_PLUGIN_ROOT}/templates/after-release.md` (remove the
-   example section `## <project>`).
+1. If `after-release.md` is missing in the notebook: create it from `${CLAUDE_PLUGIN_ROOT}/templates/after-release.md`, or from
+   `${CLAUDE_PLUGIN_ROOT}/templates/sv/after-release.md` when `language` in `rooflow.json` is `sv` (remove the example section `## <project>`).
 2. Add the line `- [ ] <what> (<why>)` under `## <project>`. If the section does not exist, create it last in the file.
    (A file with a single project may have its heading on top instead of sections; then the line goes last in the list.)
 3. Confirm in one line. No questions. Do not add the same thing twice (search for the line first).

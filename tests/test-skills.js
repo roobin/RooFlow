@@ -149,6 +149,54 @@ r = init('--no-radar');
 ok(JSON.parse(r.stdout.trim().split('\n').pop()).created.join() === 'promises.md', 'a second run fills in only what is missing');
 ok(init('--language', 'fr').status === 1, 'init.js refuses an unknown language');
 
+// --- the language of the templates ---
+ok(Array.isArray(ut.overview) && ['radar.md', 'status/radar.json'].every((f) => ut.overview.includes(f)) && !ut.created.includes('radar.md'), 'init.js lists the overview\'s files as "overview", not as "created"');
+const svMallar = [];
+(function samla(dir) {
+  for (const e of fs.readdirSync(path.join(repo, 'templates', 'sv', dir), { withFileTypes: true })) {
+    const rel = dir ? dir + '/' + e.name : e.name;
+    if (e.isDirectory()) samla(rel); else svMallar.push(rel);
+  }
+})('');
+ok(svMallar.length >= 8 && svMallar.every((f) => fs.existsSync(path.join(repo, 'templates', f))), `every templates/sv file has an English template (${svMallar.join(', ')})`);
+const rubriker = (text) => text.split(/\r?\n/).filter((l) => /^## /.test(l) && !/^## </.test(l)).join('|');
+for (const f of ['decisions.md', 'inbox.md', 'promises.md']) {
+  ok(rubriker(las('templates/sv/' + f)) === rubriker(las('templates/' + f)), `templates/sv/${f} keeps the English ## headings the scripts read`);
+}
+ok(/^Next Id: B1$/m.test(las('templates/sv/decisions.md')) && /^## Open\n\n/m.test(las('templates/sv/decisions.md')), 'templates/sv/decisions.md: Next Id B1 and "## Open" followed by an empty line (new-decision.cjs)');
+for (const k of ['- Id:', '- Date:', '- Project:', '- Task:', '- Blocks:', '- Asked by:', '- Question:', '- Why it matters:', '- Options:', '- Decision:']) {
+  ok(las('templates/sv/decisions.md').includes(k), `templates/sv/decisions.md: the block key "${k}" is English`);
+}
+ok(/Folder \| Category \| Own repo \| Remote \| State \| Comment/.test(las('templates/sv/projects.md')), 'templates/sv/projects.md: the English column headers');
+ok(las('templates/sv/status/_template.md').split('\n').slice(0, 6).map((l) => l.split(':')[0]).join(',') === 'State,Doing,Needs,Task,Project,Updated', 'templates/sv/status/_template.md: the English header keys in order');
+const kommandonSv = require('../scripts/radar.js').tolkaKommandon(las('templates/sv/commands.md'));
+ok(kommandonSv.every((k) => k.besk.length > 5), 'templates/sv/commands.md: every command has a description');
+
+const rotSv = path.join(__dirname, '_tmp', 'skills-sv');
+const rotEn = path.join(__dirname, '_tmp', 'skills-en');
+for (const d of [rotSv, rotEn]) fs.rmSync(d, { recursive: true, force: true });
+const initI = (dir, ...extra) => spawnSync(process.execPath, [path.join(repo, 'scripts', 'init.js'), '--root', dir, ...extra], { encoding: 'utf8' });
+ok(initI(rotSv, '--language', 'sv').status === 0 && initI(rotEn, '--language', 'en').status === 0, 'init.js runs with --language sv and en');
+const svText = (f) => fs.readFileSync(path.join(rotSv, f), 'utf8');
+const enText = (f) => fs.readFileSync(path.join(rotEn, f), 'utf8');
+ok(/^# Beslut som väntar på dig/.test(svText('decisions.md')) && /^# Inkorg/.test(svText('inbox.md')) && /^## Egna regler/m.test(svText('CLAUDE.md')), 'sv: Swedish headings from templates/sv/');
+ok(/^# Decisions waiting for you/.test(enText('decisions.md')) && /^# Inbox/.test(enText('inbox.md')) && /^## Own rules/m.test(enText('CLAUDE.md')), 'en: the English templates');
+ok(/^# Today \d{4}-\d{2}-\d{2}/.test(svText('today.md')) && JSON.parse(svText('rooflow.json')).language === 'sv', 'sv: a file without a Swedish template falls back to templates/ (today.md, rooflow.json)');
+const blockFil = path.join(rotSv, 'block.txt');
+fs.writeFileSync(blockFil, '## Prov\n- Id: B?\n- Date: 2026-11-25\n- Asked by: prov\n- Question: Fungerar det?\n- Options: a) ja b) **(förslag)** nej\n- Decision:\n');
+const nyttB = spawnSync(process.execPath, [path.join(repo, 'scripts', 'new-decision.cjs'), blockFil], { encoding: 'utf8', env: { ...process.env, ROOFLOW_ROOT: rotSv } });
+ok(nyttB.status === 0 && nyttB.stdout.trim() === 'B1' && /^Next Id: B2$/m.test(svText('decisions.md')), 'sv: new-decision.cjs adds B1 under ## Open and counts Next Id up');
+fs.rmSync(blockFil);
+const radarSv = spawnSync(process.execPath, [path.join(repo, 'scripts', 'radar.js'), '--quiet'], { encoding: 'utf8', env: { ...process.env, ROOFLOW_ROOT: rotSv } });
+const radarJson = JSON.parse(fs.readFileSync(path.join(rotSv, 'status', 'radar.json'), 'utf8'));
+ok(radarSv.status === 0 && JSON.stringify(radarJson).includes('Fungerar det?'), 'sv: radar.js reads the decision from the Swedish decisions.md');
+for (const d of [rotSv, rotEn]) {
+  const doc = spawnSync(process.execPath, [path.join(repo, 'scripts', 'doctor.js')], { encoding: 'utf8', env: { ...process.env, ROOFLOW_ROOT: d, ROOFLOW_PLUGINS_DIR: path.join(d, 'no-plugins') } });
+  ok(doc.status === 0 && !/^(WARNING|ERROR)/m.test(doc.stdout), `doctor approves the ${path.basename(d)} notebook`);
+  if (doc.status !== 0 || /^(WARNING|ERROR)/m.test(doc.stdout)) console.log(doc.stdout);
+  fs.rmSync(d, { recursive: true, force: true });
+}
+
 fs.rmSync(rot, { recursive: true, force: true });
 fs.mkdirSync(path.join(rot, 'status'), { recursive: true });
 fs.mkdirSync(path.join(rot, 'tankar'));
