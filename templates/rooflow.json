@@ -1,0 +1,26 @@
+{
+  "format": 1,
+  "name": "",
+  "language": "en",
+  "addons": {
+    "calendar": "none",
+    "servers": false
+  },
+  "models": { "routine": "haiku", "agents": "sonnet", "build": "sonnet" },
+  "visibility": { "routine": "hidden", "agents": "hidden", "build": "hidden" },
+  "decisions": { "autoContinue": true, "undoSeconds": 4 },
+  "categories": {
+    "work": { "label": "work" },
+    "private": { "label": "private", "private": true },
+    "home": { "label": "home", "private": true },
+    "archive": { "label": "archive", "hidden": true }
+  },
+  "backup": { "type": "", "target": "", "when": "" },
+  "team": {
+    "enabled": false,
+    "space": { "type": "", "target": "" },
+    "sharedRepos": [],
+    "prRules": true
+  },
+  "projects": {}
+}

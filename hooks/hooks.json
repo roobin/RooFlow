@@ -1,0 +1,13 @@
+{
+  "description": "RooFlow: the Radar mod (band and panel) and the session rules.",
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/session-rules.js\"" }
+        ]
+      }
+    ]
+  },
+  "modules": ["./register.tsx"]
+}

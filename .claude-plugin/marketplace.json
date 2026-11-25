@@ -1,0 +1,8 @@
+{
+  "name": "rooflow",
+  "description": "RooFlow: project, agent, promise and decision overview kept as plain files.",
+  "owner": { "name": "RooFlow contributors" },
+  "plugins": [
+    { "name": "rooflow", "source": "./", "description": "RooFlow: a calm overview of projects, agents, promises and decisions." }
+  ]
+}

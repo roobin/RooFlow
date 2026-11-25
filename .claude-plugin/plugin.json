@@ -1,0 +1,10 @@
+{
+  "name": "rooflow",
+  "version": "0.3.0",
+  "description": "RooFlow: a calm overview of projects, agents, promises and decisions, kept as plain files in a notebook folder. Includes the Radar band and panel.",
+  "author": {
+    "name": "RooFlow contributors"
+  },
+  "license": "MIT",
+  "types": "./types/index.d.ts"
+}
