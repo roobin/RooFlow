@@ -46,6 +46,14 @@ execFileSync('git', ['-C', rot, 'add', '-A'], { stdio: 'ignore' });
 let r = doctor();
 ok(r.kod === 0 && !/^(WARNING|ERROR)/m.test(r.ut), 'healthy root: only OK, exit code 0');
 ok(/scheduled jobs/.test(r.ut), 'the line about scheduled jobs exists (the skill checks them)');
+ok(/^Total: \d+ OK, 0 WARNING, 0 ERROR$/m.test(r.ut), 'English by default, with the Total line');
+{
+  const sv = bryt('language sv: the lines are Swedish', { 'rooflow.json': JSON.stringify({ ...JSON.parse(FRISK['rooflow.json']), language: 'sv' }) }, 'OK', 'ingen BOM i .md-filer');
+  ok(/^-  schemalagda jobb/m.test(sv) && /^Summa: \d+ OK, 0 WARNING, 0 ERROR$/m.test(sv), 'language sv: the scheduled-jobs line and the total are Swedish, the level words stay English');
+  ok(!/no BOM in|scheduled jobs/.test(sv), 'language sv: no English check lines left');
+  const okant = bryt('an unknown language falls back to English', { 'rooflow.json': JSON.stringify({ ...JSON.parse(FRISK['rooflow.json']), language: 'fr' }) }, 'OK', 'no BOM in .md files');
+  ok(/^Total:/m.test(okant), 'an unknown language gives the English total');
+}
 
 // One fault at a time against a healthy root.
 function bryt(namn, andra, niva, ord) {

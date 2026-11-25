@@ -9,6 +9,7 @@ Nothing is changed. The script checks, this skill explains and proposes. Answer 
 `rooflow.json`). Work from the notebook folder.
 
 1. Run `node ${CLAUDE_PLUGIN_ROOT}/scripts/doctor.js` (zero tokens). Show the lines word for word in a code block.
+   The script writes in `language` too (en or sv); the level words `OK`, `WARNING` and `ERROR` stay English in every language.
 2. The scheduled morning job cannot be read by a script: if the app can list scheduled tasks (`list_scheduled_tasks`), check that
    `rooflow-morning` exists and is on. If the owner has not set up a schedule, say nothing about it. If it exists but is off, or is
    missing although `/rooflow-setup` was told to create it: write it as a line of its own, WARNING.
