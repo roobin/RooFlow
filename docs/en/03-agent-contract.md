@@ -3,7 +3,7 @@
 Every agent Tower starts gets the contract in its brief. The whole text is the plugin's `rules/agent-contract.md`. In short:
 
 - Work in the project's folder on the branch that is checked out. No worktree, no switching branch.
-- Commit when something works. Never push unless the task says so.
+- Commit when something works, if the folder is a git repository. Never push unless the task says so.
 - Never read secrets.
 - The status file `status/<task>.md` in the notebook starts with:
 

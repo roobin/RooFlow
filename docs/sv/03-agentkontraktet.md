@@ -4,7 +4,7 @@ Varje agent som Tower startar får kontraktet i sin brief. Hela texten står i p
 Kort:
 
 - Arbeta i projektets mapp på den gren som är utcheckad. Ingen worktree, inget grenbyte.
-- Committa när något fungerar. Pusha aldrig om uppdraget inte säger det.
+- Committa när något fungerar, om mappen är ett git-repo. Pusha aldrig om uppdraget inte säger det.
 - Läs aldrig hemligheter.
 - Statusfilen `status/<uppdrag>.md` i anteckningsboken börjar med:
 

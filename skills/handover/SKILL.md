@@ -18,7 +18,8 @@ in this order:
 Remove everything that is done and no longer needed. The file should be readable in two minutes.
 
 Then check that `promises.md`, `decisions.md` and `inbox.md` are current. If the notebook is a git repository, commit it with the
-message `docs: handover YYYY-MM-DD` (only the notebook's own files). If `backup.type` in `rooflow.json` is `git` and `backup.when`
+message `docs: handover YYYY-MM-DD` (only the notebook's own files); if it is not, skip the commit without a word (`/rooflow-setup`
+offers a local repository). If `backup.type` in `rooflow.json` is `git` and `backup.when`
 is `commit`, run the backup as `rooflow-setup` describes under "Running the backup".
 
 Finish with one line to the owner: "Handover done. Start a new session in this folder and type /start."

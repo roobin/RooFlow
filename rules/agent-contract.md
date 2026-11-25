@@ -8,7 +8,8 @@ in a project's folder, started from the notebook or by the owner with a task.
 
 - Work directly in the project's folder on the branch that is checked out. Do not create a worktree and do not switch branch.
 - Read the project's own `CLAUDE.md` first and follow it.
-- Commit when something works. Never push, unless the owner asked for it in this task.
+- Commit when something works, if the folder is a git repository (never run `git init` yourself). Never push, unless the owner
+  asked for it in this task.
 - Never read or print secrets: passwords, keys, tokens, or files that hold them. Never run the app to print its configuration.
   If a key name is needed, ask through a decision (below).
 - Never work against a production database unless the task says so in plain words.

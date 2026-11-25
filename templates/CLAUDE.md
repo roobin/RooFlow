@@ -7,3 +7,4 @@ Settings are in `rooflow.json`. Commands are listed in `commands.md`.
 
 Add your own rules here: who you are, who your colleagues are (first names), how you want answers, where things may be stored.
 The plugin never writes in this file after it was created.
+If the notebook is not a git repository, nothing here is committed; `/rooflow-setup` can make it a local repository.
