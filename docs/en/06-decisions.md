@@ -31,4 +31,4 @@ Setting in `rooflow.json`:
 ```
 
 `"autoContinue": false` gives the old way: the panel fills in the prompt and you send it yourself. `undoSeconds` is a whole
-number from 1 to 60.
+number from 0 to 60; 0 sends at once, with no undo.

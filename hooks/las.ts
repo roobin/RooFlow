@@ -557,11 +557,12 @@ export async function hittaRot(cwd: string, finns: (sokvag: string) => Promise<b
 }
 
 // How long the panel waits before it sends the continue prompt for an agent's decision; Undo stops it meanwhile.
-// rooflow.json decisions.undoSeconds overrides it: a whole number from 1 to 60, anything else gives the default.
+// rooflow.json decisions.undoSeconds overrides it: a whole number from 0 to 60, anything else gives the default.
+// 0 sends at once, with no undo window.
 export const ANGRA_SEKUNDER = 4
 
 export function angraSekunder(v: unknown): number {
-  return typeof v === 'number' && Number.isInteger(v) && v >= 1 && v <= 60 ? v : ANGRA_SEKUNDER
+  return typeof v === 'number' && Number.isInteger(v) && v >= 0 && v <= 60 ? v : ANGRA_SEKUNDER
 }
 
 export type Miljo = { rot: string; language: string; servers: boolean; platform: string; autoContinue: boolean; undoSeconds: number }
@@ -569,7 +570,7 @@ export type Miljo = { rot: string; language: string; servers: boolean; platform:
 export const TOM_MILJO: Miljo = { rot: '', language: 'en', servers: false, platform: 'unknown', autoContinue: true, undoSeconds: ANGRA_SEKUNDER }
 
 // rooflow.json -> what the mod needs: the language ("language", older "sprak"; default en), the addons and
-// "decisions": { "autoContinue" (default true), "undoSeconds" (default ANGRA_SEKUNDER, 1 to 60) }. Broken file: defaults.
+// "decisions": { "autoContinue" (default true), "undoSeconds" (default ANGRA_SEKUNDER, 0 to 60) }. Broken file: defaults.
 export function tolkaKonfig(text: string): { language: string; servers: boolean; autoContinue: boolean; undoSeconds: number } {
   let o: unknown
   try {

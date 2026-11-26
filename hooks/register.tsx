@@ -454,6 +454,10 @@ async function efterBeslut($: EngineInterface, inst: Inst, id: string, task: str
     $.ui.toast(task ? S.continueHeld(id, task) : S.decidedHeld(id))
     return
   }
+  if (inst.undoSeconds === 0) {
+    await skickaFortsattning($, inst, id, task, text)
+    return
+  }
   // Several decisions can be in their undo window at once: one entry and one timer per decision.
   const ms = await $.clock.now()
   await update($, fortsatt, f => [...f.filter(x => x.id !== id), { id, task, text, ms }])
@@ -894,9 +898,7 @@ async function beslutFlik($: EngineInterface, inst: Inst, d: RadarData, sk: Reco
       {pagar.map((x, i) => (
         <Box key={`fortsatt-${x.id}`} flexDirection="row" gap={1} flexWrap="wrap">
           <Text color="warning">{x.task ? S.continuingIn(x.task, inst.undoSeconds) : S.sendingIn(x.id, inst.undoSeconds)}</Text>
-          <Button key={`fortsatt-angra-${x.id}`} autoFocus={i === 0 ? true : undefined} label={x.task ? S.undoContinueLabel(x.task) : S.undoSendLabel(x.id)} onPress={() => void angraFortsattning($, x.id)}>
-            {S.undoContinue}
-          </Button>
+          <Button key={`fortsatt-angra-${x.id}`} autoFocus={i === 0 ? true : undefined} label={x.task ? S.undoContinueLabel(x.task) : S.undoSendLabel(x.id)} onPress={() => void angraFortsattning($, x.id)} />
         </Box>
       ))}
       {vantande.map(x => (

@@ -58,11 +58,12 @@ describe('rooflow.json: language and addons', () => {
     expect(tolkaKonfig('')).toEqual({ language: 'en', servers: false, autoContinue: true, undoSeconds: 4 })
   })
 
-  test('decisions: autoContinue on unless false, undoSeconds a whole number from 1 to 60, otherwise 4', () => {
+  test('decisions: autoContinue on unless false, undoSeconds a whole number from 0 to 60, otherwise 4', () => {
     expect(tolkaKonfig('{"decisions":{"autoContinue":false}}').autoContinue).toBe(false)
     expect(tolkaKonfig('{"decisions":{"autoContinue":"no"}}').autoContinue).toBe(true)
     expect(tolkaKonfig('{"decisions":{"undoSeconds":8}}').undoSeconds).toBe(8)
-    expect(tolkaKonfig('{"decisions":{"undoSeconds":0}}').undoSeconds).toBe(4)
+    expect(tolkaKonfig('{"decisions":{"undoSeconds":0}}').undoSeconds).toBe(0)
+    expect(tolkaKonfig('{"decisions":{"undoSeconds":-1}}').undoSeconds).toBe(4)
     expect(tolkaKonfig('{"decisions":{"undoSeconds":2.5}}').undoSeconds).toBe(4)
     expect(arStoppSvar('vänta till fredag') && arStoppSvar('Not now') && arStoppSvar('no') && arStoppSvar('Stopp, fel spår')).toBe(true)
     expect(arStoppSvar('nog bra') || arStoppSvar('a') || arStoppSvar('kör') || arStoppSvar('nothing more')).toBe(false)
